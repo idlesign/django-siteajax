@@ -69,12 +69,12 @@ Now to your ``mytemplates/index.html``:
         <!-- The contents of the above div will be replaced
             with news from server automatically fetched on page load. -->
 
-        <!-- Initialize CSRF token for Django -->
+        <!-- Initialize CSRF token for Django (if you ever want to use POST/PUT etc.) -->
         <script>{% include "siteajax/init_csrf.js" %}</script>
 
         <script>
-            document.body.addEventListener('newsReady', function(e){
-               alert('News loaded: ' + e.detail.count);
+            document.body.addEventListener('newsReady', function(event){
+               alert('News loaded: ' + event.detail.count);
             })
         </script>
 
@@ -91,4 +91,4 @@ At last ``mytemplates/sub_news.html`` (nothing special):
 
 .. note:: See https://htmx.org/docs/ for more examples of client side
 
-.. note:: See https://github.com/idlesign/django-siteajax/demo for `siteajax` usage example.
+.. note:: See https://github.com/idlesign/django-siteajax/tree/master/demo for `siteajax` usage example.
