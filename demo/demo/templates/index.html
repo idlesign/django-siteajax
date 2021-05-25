@@ -1,0 +1,28 @@
+{% load static i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>django-siteajax demo</title>
+    {% include "siteajax/cdn.html" %}
+</head>
+<body>
+    <h1>{{ title }}</h1>
+
+    <button name="some_time" hx-target="#sample_1_target" hx-post="/sample_1/">Get time (sample_1)</button>
+    <div id="sample_1_target">this is to be swapped</div>
+
+    <hr>
+
+    <div id="some_uuid" hx-get="/sample_1/" hx-trigger="load"></div>
+
+    <script>{% include "siteajax/init_csrf.js" %}</script>
+
+    <script>
+        document.body.addEventListener('fireThis', function(e){
+           alert('Server triggered fireThis event: `one.two` data = ' + e.detail.one.two);
+        })
+    </script>
+
+</body>
+</html>

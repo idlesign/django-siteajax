@@ -1,0 +1,160 @@
+from json import dumps
+from typing import NamedTuple, Dict, Any
+
+from django.core.serializers.json import DjangoJSONEncoder
+from django.http import HttpRequest, HttpResponse
+from django.http.response import HttpResponseRedirectBase
+
+
+class Source(NamedTuple):
+    """Describes an element sourcing (triggering) a request."""
+
+    id: str
+    """The id of the triggered element if exists."""
+
+    name: str
+    """The name of the triggered element if exists."""
+
+
+class Ajax:
+    """Describes additional data sent with Ajax request."""
+
+    __slots__ = ['is_used', 'url', 'source', 'target', 'user_input']
+
+    def __init__(self, request: HttpRequest):
+        headers = request.headers
+
+        self.is_used: bool = headers.get('Hx-Request', '') == 'true'
+        """Indicates whether Ajax request is issued."""
+
+        self.url: str = headers.get('Hx-Current-Url', '')
+        """The current URL of the browser."""
+
+        self.source: Source = Source(
+            id=headers.get('HX-Trigger', ''),
+            name=headers.get('HX-Trigger-Name', ''),
+        )
+        """Describes an element sourcing (triggering) a request."""
+
+        self.target: str = headers.get('HX-Target', '')
+        """The id of the target element if it exists."""
+
+        self.user_input: str = headers.get('HX-Prompt', '')
+        """The user input to a prompt (hx-prompt)."""
+
+    def __bool__(self):
+        return self.is_used
+
+
+class AjaxResponse:
+    """Represents a response object capable of driving a client side."""
+
+    __slots__ = [
+        '_wrapped', '_headers', '_triggers',
+        'js_redirect',
+        'history_item', 'redirect', 'refresh',
+    ]
+
+    _trigger_stages = {
+        'receive': 'HX-Trigger',
+        'settle': 'HX-Trigger-After-Settle',
+        'swap': 'HX-Trigger-After-Swap',
+    }
+
+    def __init__(self, response: HttpResponse, *, js_redirect: bool = True):
+        """
+
+        :param response: Base response object.
+
+        :param js_redirect: Whether to convert a redirect response object
+            into an instruction for a client js library.
+
+            * True - redirect is handled by a client side js library. Js library
+                will get a result from this response.
+
+            * False - redirect is handled by a browser. Js library will get
+                the result from an URL browser has redirected it to.
+
+        """
+        self._wrapped = response
+        self.js_redirect: bool = js_redirect
+
+        self._triggers: Dict[str, Dict[str, Any]] = {
+            'receive': {},
+            'settle': {},
+            'swap': {},
+        }
+
+        self.history_item: str = ''
+        """Allows to push a new url into the browser history stack."""
+
+        self.redirect: str = ''
+        """Instructs a client-side redirect to a new location."""
+
+        self.refresh: bool = False
+        """Instructs a client side to make full refresh of the page."""
+
+    @property
+    def wrapped_response(self) -> HttpResponse:
+        """Returns an base response modified to allow client driving."""
+
+        response = self._wrapped
+        headers = response.headers
+
+        val = self.history_item
+        if val:
+            headers['HX-Push'] = val
+
+        val = self.redirect
+        if val:
+            headers['HX-Redirect'] = val
+
+        if self.redirect:
+            headers['HX-Refresh'] = 'true'
+
+        if self.js_redirect and isinstance(response, HttpResponseRedirectBase):
+            self.redirect = response.url
+            del headers['Location']  # Do not trigger browser redirect
+
+        # Now encode event triggers data.
+        trigger_stages = self._trigger_stages
+
+        for stage, events in self._triggers.items():
+
+            if not events:
+                continue
+
+            header_key = trigger_stages.get(stage)
+
+            if header_key:
+                headers[header_key] = dumps(events, cls=DjangoJSONEncoder)
+
+        return response
+
+    def trigger_event(self, *, name: str, kwargs: Dict[str, Any] = None, step: str = 'receive'):
+        """Can be used to trigger client side actions on the target element within a response.
+
+        .. code-block::
+            // Python
+            response.trigger_event(name='myEvent', kwargs={'one': {'two': 3}})
+
+            // JS
+            document.body.addEventListener('myEvent', function(event){
+                console.log(event.detail.one.two);
+            })
+
+        :param name: Event name to trigger.
+
+        :param kwargs: Keyword arguments to pass to an event.
+            Those will be available from event.detail object.
+
+        :param step: When to trigger this event.
+
+            https://htmx.org/docs/#request-operations
+
+            * receive - trigger events as soon as the response is received. Default.
+            * settle - trigger events after the settling step.
+            * swap - trigger events after the swap step.
+
+        """
+        self._triggers[step][name] = kwargs or {}
