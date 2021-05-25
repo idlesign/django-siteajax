@@ -42,11 +42,19 @@ class HtmxMock(DjagoappClient):
 
     @classmethod
     def make_headers_a(cls, response: HttpResponse):
-        response.headers_a = dict(
-            (item[0], item[1])
-            for item in response.headers.items()
-            if item[0].startswith('HX')
-        )
+
+        headers = getattr(response, 'headers', getattr(response, '_headers', None))
+        # _headers - in pre Django 3.2
+
+        headers_a = {}
+
+        for key, val in headers.items():
+            if key.lower().startswith('hx'):
+                if isinstance(val, tuple):  # pre 3.2
+                    key, val = val[0], val[1]
+                headers_a[key] = val
+
+        response.headers_a = headers_a
 
     def get(
         self,

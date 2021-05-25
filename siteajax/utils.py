@@ -46,7 +46,7 @@ class Ajax:
         return self.is_used
 
 
-class AjaxResponse:
+class AjaxResponse(HttpResponse):
     """Represents a response object capable of driving a client side."""
 
     __slots__ = [
@@ -61,7 +61,7 @@ class AjaxResponse:
         'swap': 'HX-Trigger-After-Swap',
     }
 
-    def __init__(self, response: HttpResponse, *, js_redirect: bool = True):
+    def __init__(self, response: HttpResponse, *, js_redirect: bool = True, **kwargs):
         """
 
         :param response: Base response object.
@@ -76,6 +76,8 @@ class AjaxResponse:
                 the result from an URL browser has redirected it to.
 
         """
+        super().__init__(**kwargs)
+
         self._wrapped = response
         self.js_redirect: bool = js_redirect
 
@@ -99,7 +101,11 @@ class AjaxResponse:
         """Returns an base response modified to allow client driving."""
 
         response = self._wrapped
-        headers = response.headers
+        headers = getattr(response, 'headers', None)
+
+        if headers is None:
+            # pre Django 3.2
+            headers = response
 
         val = self.history_item
         if val:
@@ -114,7 +120,7 @@ class AjaxResponse:
 
         if self.js_redirect and isinstance(response, HttpResponseRedirectBase):
             self.redirect = response.url
-            del headers['Location']  # Do not trigger browser redirect
+            del headers['location']  # Do not trigger browser redirect
 
         # Now encode event triggers data.
         trigger_stages = self._trigger_stages
