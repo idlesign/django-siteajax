@@ -1,5 +1,6 @@
-from json import dumps
+from json import dumps, loads
 from typing import NamedTuple, Dict, Any
+from urllib.parse import unquote
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpRequest, HttpResponse
@@ -52,6 +53,25 @@ class Ajax:
 
     def __bool__(self):
         return self.is_used
+
+    @property
+    def event(self) -> dict:
+        """Returns a dictionary describing a triggering event.
+
+        Requires `event-header` extension:
+            https://htmx.org/extensions/event-header/
+
+        """
+        headers = self._request.headers
+
+        data = headers.get('Triggering-Event', '')
+        if not data:
+            return {}
+
+        # encoded = headers.get('Triggering-Event-Uri-Autoencoded', '') == 'true'
+        data = unquote(data)
+
+        return loads(data)
 
 
 class AjaxResponse(HttpResponse):
