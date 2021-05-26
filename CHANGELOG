@@ -2,6 +2,14 @@ django-siteajax changelog
 =========================
 
 
+Unreleased
+----------
++ JS. CDN is now linked to 1.4.0.
+* Added 'Ajax.restore_history' flag.
+* Added 'ajax_dispatch' decorator.
+* Added support for 'event-header' htmx extension ('Ajax.event').
+
+
 v0.1.0 [2021-05-25]
 -------------------
 + Basic functionality.
