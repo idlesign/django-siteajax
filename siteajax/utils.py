@@ -19,13 +19,21 @@ class Source(NamedTuple):
 class Ajax:
     """Describes additional data sent with Ajax request."""
 
-    __slots__ = ['is_used', 'url', 'source', 'target', 'user_input']
+    __slots__ = ['is_used', 'url', 'source', 'target', 'user_input', 'restore_history', '_request']
 
     def __init__(self, request: HttpRequest):
         headers = request.headers
+        self._request = request
 
         self.is_used: bool = headers.get('Hx-Request', '') == 'true'
         """Indicates whether Ajax request is issued."""
+
+        self.restore_history: bool = headers.get('HX-History-Restore-Request', '') == 'true'
+        """Indicates the client side request to get the entire page 
+        (as opposed to a page fragment request), when the client was 
+        unable to restore a browser history state from the cache.
+        
+        """
 
         self.url: str = headers.get('Hx-Current-Url', '')
         """The current URL of the browser."""
@@ -103,7 +111,7 @@ class AjaxResponse(HttpResponse):
         response = self._wrapped
         headers = getattr(response, 'headers', None)
 
-        if headers is None:
+        if headers is None:  # pragma: nocover
             # pre Django 3.2
             headers = response
 
