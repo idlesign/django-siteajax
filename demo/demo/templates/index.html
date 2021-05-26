@@ -14,7 +14,12 @@
 
     <hr>
 
-    <div id="some_uuid" hx-get="/sample_1/" hx-trigger="load"></div>
+    <div id="some_uuid" hx-get hx-trigger="load"></div>
+
+    <hr>
+
+    <button id="replacer-1" hx-get>Replace me 1 (sample_2)</button>
+    <button id="replacer-2" hx-get>Replace me 2 (sample_2)</button>
 
     <script>{% include "siteajax/init_csrf.js" %}</script>
 
