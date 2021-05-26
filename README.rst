@@ -20,10 +20,10 @@ https://github.com/idlesign/django-siteajax
 Description
 -----------
 
-*Reusable application for Django bridging client and server sides with htmx*
+*Reusable application for Django bridging client and server sides*
 
 Streamline you server and client interaction using declarative techniques
-in your HTML and helpful abstractions from ``siteajax`` in your views.
+in your HTML and helpful abstractions from ``siteajax`` in your Python code.
 
 .. note:: The client side of ``siteajax`` is powered by ``htmx``
   (the successor of ``intercooler.js``) - https://htmx.org/
@@ -36,25 +36,28 @@ Somewhere in your ``views.py``:
 .. code-block:: python
 
     from django.shortcuts import redirect, render
-    from siteajax.toolbox import Ajax
+    from siteajax.toolbox import ajax_dispatch
 
 
+    def get_news(request):
+        news = ...  # Here we fetch some news from DB.
+        # We could access `request.ajax` object properties
+        # or even drive client side with the help
+        # of siteajax.toolbox.AjaxResponse but for this demo
+        # simple rendering is enough.
+        return render(request, 'sub_news.html', {'news': news})
+
+    @ajax_dispatch({
+        # Map request source element id (see html below)
+        # to a handler.
+        'news-list': get_news,
+    })
     def index_page(request):
         """Suppose this view is served at /"""
-
-        ajax: Ajax = request.ajax
-
-        if ajax:
-            news = ...  # Here we fetch some news from DB.
-            # We can drive client side with the
-            # help of siteajax.toolbox.AjaxResponse
-            # but for this demo simple rendering is enough.
-            return render(request, 'mytemplates/sub_news.html', {'news': news})
-
-        return render(request, 'mytemplates/index.html')
+        return render(request, 'index.html')
 
 
-Now to your ``mytemplates/index.html``:
+Now to your ``index.html``:
 
 .. code-block:: html
 
@@ -65,14 +68,17 @@ Now to your ``mytemplates/index.html``:
         {% include "siteajax/cdn.html" %}
     </head>
     <body>
-        <div hx-get="/" hx-trigger="load"></div>
+        <div id="news-list" hx-get hx-trigger="load"></div>
         <!-- The contents of the above div will be replaced
-            with news from server automatically fetched on page load. -->
+            with the news from your server automatically fetched on page load.
+            Notice `hx-*` attributes driving htmx JS library.
+            Also notice how `id="news-list"` is used by `@ajax_dispatch`
+            view decorator (shown above). -->
     </body>
     </html>
 
 
-At last ``mytemplates/sub_news.html`` (nothing special):
+At last ``sub_news.html`` (nothing special):
 
 .. code-block:: html
 

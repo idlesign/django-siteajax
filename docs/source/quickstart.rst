@@ -19,8 +19,8 @@ In your project configuration file (usually ``settings.py``):
 2. Add ``siteajax.middleware.ajax_handler`` to ``MIDDLEWARE``.
 
 
-Usage
-~~~~~
+Basic Usage
+~~~~~~~~~~~
 
 Somewhere in your ``views.py``:
 
@@ -65,7 +65,7 @@ Now to your ``mytemplates/index.html``:
         {% include "siteajax/cdn.html" %}
     </head>
     <body>
-        <div hx-get="/" hx-trigger="load"></div>
+        <div id="news-list" hx-get hx-trigger="load"></div>
         <!-- The contents of the above div will be replaced
             with news from server automatically fetched on page load. -->
 
@@ -92,3 +92,33 @@ At last ``mytemplates/sub_news.html`` (nothing special):
 .. note:: See https://htmx.org/docs/ for more examples of client side
 
 .. note:: See https://github.com/idlesign/django-siteajax/tree/master/demo for `siteajax` usage example.
+
+
+Dispatch
+~~~~~~~~
+
+In cases when various ajax calls have a single entry point view
+it's useful to apply ``siteajax.toolbox.Ajax.ajax_dispatch`` decorator
+to decouple logic.
+
+It allows ajax request dispatch based on source html element identifiers.
+So the above mentioned ``index_page`` entry point view can be defined as follows
+
+.. code-block:: python
+
+    from django.shortcuts import redirect, render
+    from siteajax.toolbox import AjaxResponse, ajax_dispatch
+
+
+    def get_news(request):
+        news = ...  # Here we fetch some news from DB.
+        response = AjaxResponse(render(request, 'mytemplates/sub_news.html', {'news': news}))
+        response.trigger_event(name='newsReady', kwargs={'count': len(news)})
+        return response
+
+    @ajax_dispatch({
+        'news-list': get_news,  # Map element id to a handler
+    })
+    def index_page(request):
+        """Suppose this view is served at /"""
+        return render(request, 'mytemplates/index.html')

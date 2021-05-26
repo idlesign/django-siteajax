@@ -151,7 +151,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'django-siteajax', 'django-siteajax Documentation',
-     author, 'django-siteajax', 'Reusable application for Django bridging client and server sides with htmx',
+     author, 'django-siteajax', 'Reusable application for Django bridging client and server sides',
      'Miscellaneous'),
 ]
 
