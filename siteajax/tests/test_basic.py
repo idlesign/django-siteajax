@@ -30,8 +30,19 @@ def test_headers(htmx):
     assert response.headers_a == {'HX-Push': '/otherurl/', 'HX-Redirect': '/here/', 'HX-Refresh': 'true'}
 
 
-def test_template(request_client):
-    client = request_client()
+def test_dispatch(htmx):
+    client = htmx()
 
-    response = client.get('/sample_view_1/').content.decode()
-    assert "'htmx:configRequest'" in response
+    def do_test(url: str):
+        response = client.get(url, source=Source(id='dispatchme', name=''))
+        assert response.content.decode() == 'dispatched'
+
+        # not dispatched
+        response = client.get(url, source=Source(id='unknown', name=''))
+        assert response.content.decode() == 'notajax'
+
+    # function based view
+    do_test('/sample_view_2/')
+
+    # class based view
+    do_test('/sample_view_3/')

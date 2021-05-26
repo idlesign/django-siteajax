@@ -1,10 +1,10 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from django.shortcuts import redirect, render
+from django.views import View
+from siteajax.toolbox import Ajax, AjaxResponse, ajax_dispatch
 
-from siteajax.toolbox import Ajax, AjaxResponse
 
-
-def sample_view_1(request):
+def sample_view_1(request: HttpRequest) -> HttpResponse:
 
     ajax: Ajax = request.ajax
 
@@ -33,3 +33,26 @@ def sample_view_1(request):
         return response
 
     return render(request, 'index.html')
+
+
+def get_dispatched(request: HttpRequest) -> HttpResponse:
+    return HttpResponse('dispatched')
+
+
+@ajax_dispatch({
+    'dispatchme': get_dispatched
+})
+def sample_view_2(request: HttpRequest) -> HttpResponse:
+    return HttpResponse('notajax')
+
+
+class SampleView3(View):
+
+    def get_dispatched_2(self, request: HttpRequest) -> HttpResponse:
+        return HttpResponse('dispatched')
+
+    @ajax_dispatch({
+        'dispatchme': get_dispatched_2
+    })
+    def get(self, request: HttpRequest) -> HttpResponse:
+        return HttpResponse('notajax')

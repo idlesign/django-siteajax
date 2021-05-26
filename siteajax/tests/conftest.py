@@ -24,19 +24,19 @@ class HtmxMock(DjagoappClient):
         url: str = 'http://testhost/dummy/',
     ):
         extra = {
-            'HTTP_Hx-Request': 'true',
-            'HTTP_Hx-Current-Url': url,
+            'HTTP_HX-Request': 'true',
+            'HTTP_HX-Current-Url': url,
         }
 
         if source:
-            extra['HX-Trigger'] = source.id
-            extra['HX-Trigger-Name'] = source.name
+            extra['HTTP_HX-Trigger'] = source.id
+            extra['HTTP_HX-Trigger-Name'] = source.name
 
         if target:
-            extra['HX-Target'] = target
+            extra['HTTP_HX-Target'] = target
 
         if user_input:
-            extra['HX-Prompt'] = user_input
+            extra['HTTP_HX-Prompt'] = user_input
 
         return extra
 
