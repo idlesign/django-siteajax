@@ -29,7 +29,7 @@ setup(
     version=get_version(),
     url='https://github.com/idlesign/django-siteajax',
 
-    description='Reusable application for Django bridging client and server sides with htmx',
+    description='Reusable application for Django bridging client and server sides',
     long_description=read_file('README.rst'),
     license='BSD 3-Clause License',
 
