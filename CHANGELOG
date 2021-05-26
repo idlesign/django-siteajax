@@ -2,8 +2,8 @@ django-siteajax changelog
 =========================
 
 
-Unreleased
-----------
+v0.2.0 [2021-05-26]
+-------------------
 + Added 'Ajax.restore_history' flag.
 + Added 'ajax_dispatch' decorator.
 + Added support for 'event-header' htmx extension ('Ajax.event').
