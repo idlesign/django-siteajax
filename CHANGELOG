@@ -2,6 +2,11 @@ django-siteajax changelog
 =========================
 
 
+Unreleased
+----------
++ Middleware is now optional in certain cases.
+
+
 v0.3.0 [2021-05-27]
 -------------------
 + Ajax objects are now lazy to allow faster middleware processing.

@@ -1,3 +1,6 @@
+from django.http import HttpRequest, HttpResponse
+
+from siteajax.decorators import ajax_dispatch
 from siteajax.utils import Source
 
 
@@ -46,3 +49,21 @@ def test_dispatch(htmx):
 
     # class based view
     do_test('/sample_view_3/')
+
+
+def test_decor_ajax_autoinit(request_get):
+
+    def handler(request: HttpRequest):
+        return HttpResponse('fine')
+
+    @ajax_dispatch({'me': handler})
+    def my_view(request: HttpRequest):
+        return HttpResponse('nope')
+
+    request = request_get(**{
+        'HTTP_HX-Request': 'true',
+        'HTTP_HX-Trigger': 'me',
+    })
+
+    response = my_view(request)
+    assert response.content == b'fine'

@@ -33,11 +33,20 @@ def ajax_dispatch(views_map: Dict[str, Callable]) -> Callable:
 
         def view_wrapper(*fargs, **fkwargs) -> HttpResponse:
 
-            ajax: Ajax = getattr(fargs[0], 'ajax', None)
+            request = fargs[0]
 
-            if ajax is None:
+            if not hasattr(request, 'POST'):
                 # Possibly a class-based view where 0-attr is `self`.
-                ajax = getattr(fargs[1], 'ajax', None)
+                request = fargs[1]
+
+            if hasattr(request, 'ajax'):
+                # Attribute is already set by middleware.
+                ajax: Ajax = request.ajax
+
+            else:
+                # Initialize on fly.
+                ajax = Ajax(request)
+                request.ajax = ajax
 
             if ajax:
                 handling_view = views_map.get(ajax.source.id)
@@ -47,7 +56,8 @@ def ajax_dispatch(views_map: Dict[str, Callable]) -> Callable:
 
             response = func(*fargs, **fkwargs)
 
-            return response
+            # Try to unwrap an AjaxResponse if any.
+            return getattr(response, 'wrapped_response', response)
 
         return view_wrapper
 

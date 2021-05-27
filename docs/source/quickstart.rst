@@ -18,6 +18,11 @@ In your project configuration file (usually ``settings.py``):
 1. Add ``siteajax`` to ``INSTALLED_APPS``.
 2. Add ``siteajax.middleware.ajax_handler`` to ``MIDDLEWARE``.
 
+  .. note:: The middleware is required if either your site is ajax-heavy
+    (the majority of requests are ajax) or you do not use
+    ``@ajax_dispatch`` decorator (it initializes ``request.ajax``
+    property just as middleware does) described below.
+
 
 Basic Usage
 ~~~~~~~~~~~
