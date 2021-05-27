@@ -2,8 +2,8 @@ django-siteajax changelog
 =========================
 
 
-Unreleased
-----------
+v0.3.0 [2021-05-27]
+-------------------
 + Ajax objects are now lazy to allow faster middleware processing.
 
 
