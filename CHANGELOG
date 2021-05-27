@@ -2,8 +2,8 @@ django-siteajax changelog
 =========================
 
 
-Unreleased
-----------
+v0.4.0 [2021-05-27]
+-------------------
 + Middleware is now optional in certain cases.
 
 
