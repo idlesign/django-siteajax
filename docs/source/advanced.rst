@@ -8,10 +8,30 @@ Additional info from the client
 ``request.ajax`` object is ``siteajax.toolbox.Ajax``. It given you an access
 to additional information received from the client:
 
+* ``ajax.is_used`` - a flag indicating whether the request is Ajax or not
+* ``ajax.restore_history`` - indicates the client side request to get the entire page
+  (as opposed to a page fragment request), when the client was unable to restore a browser history state
+  from the cache.
 * ``ajax.url`` - URL of the browser
 * ``ajax.target`` - the id of the target element if it exists
 * ``ajax.user_input`` - the user input to a prompt (hx-prompt)
 * ``ajax.source`` - info about an element sourcing (triggering) the request (``id`` and ``name`` if any)
+
+
+.. note:: The object is lazily initialized to allow faster
+    middleware processing.
+
+    Without initialization you won't be able to access it's attributes.
+
+    For initialization it's enough to check it in boolean context, e.g.::
+
+        bool(Ajax(request))
+
+        # or
+
+        if request.ajax:
+            ...
+
 
 
 Driving the client

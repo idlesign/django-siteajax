@@ -18,13 +18,29 @@ class Source(NamedTuple):
 
 
 class Ajax:
-    """Describes additional data sent with Ajax request."""
+    """Describes additional data sent with Ajax request.
 
+    .. note:: The object is lazily initialized to allow faster
+        middleware processing.
+
+        Without initialization you won't be able to access it's attributes.
+        For initialization it's enough to check it in boolean context, e.g.::
+
+            bool(Ajax(request))
+
+            # or
+
+            if request.ajax:
+                ...
+
+    """
     __slots__ = ['is_used', 'url', 'source', 'target', 'user_input', 'restore_history', '_request']
 
     def __init__(self, request: HttpRequest):
-        headers = request.headers
         self._request = request
+
+    def _boot(self):
+        headers = self._request.headers
 
         self.is_used: bool = headers.get('Hx-Request', '') == 'true'
         """Indicates whether Ajax request is issued."""
@@ -52,6 +68,7 @@ class Ajax:
         """The user input to a prompt (hx-prompt)."""
 
     def __bool__(self):
+        self._boot()
         return self.is_used
 
     @property
