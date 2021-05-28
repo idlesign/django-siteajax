@@ -52,12 +52,11 @@ def ajax_dispatch(views_map: Dict[str, Callable]) -> Callable:
                 handling_view = views_map.get(ajax.source.id)
 
                 if handling_view:
-                    return handling_view(*fargs, **fkwargs)
+                    response = handling_view(*fargs, **fkwargs)
+                    # Try to unwrap an AjaxResponse if any.
+                    return getattr(response, 'wrapped_response', response)
 
-            response = func(*fargs, **fkwargs)
-
-            # Try to unwrap an AjaxResponse if any.
-            return getattr(response, 'wrapped_response', response)
+            return func(*fargs, **fkwargs)
 
         return view_wrapper
 

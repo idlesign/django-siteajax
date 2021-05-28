@@ -1,7 +1,7 @@
 from django.http import HttpRequest, HttpResponse
 
 from siteajax.decorators import ajax_dispatch
-from siteajax.utils import Source
+from siteajax.utils import Source, AjaxResponse
 
 
 def test_headers(htmx):
@@ -54,7 +54,9 @@ def test_dispatch(htmx):
 def test_decor_ajax_autoinit(request_get):
 
     def handler(request: HttpRequest):
-        return HttpResponse('fine')
+        response = AjaxResponse(HttpResponse('fine'), js_redirect=True)
+        response.history_item = 'addthis/'
+        return response
 
     @ajax_dispatch({'me': handler})
     def my_view(request: HttpRequest):
@@ -67,3 +69,4 @@ def test_decor_ajax_autoinit(request_get):
 
     response = my_view(request)
     assert response.content == b'fine'
+    assert response['HX-Push'] == 'addthis/'
