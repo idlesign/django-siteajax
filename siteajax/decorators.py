@@ -22,13 +22,27 @@ def ajax_dispatch(views_map: Dict[str, Callable]) -> Callable:
 
         @ajax_dispatch({
             'replaceit': do_replace,  # Map element id to a handler
+            'prefixed-some-*': do_replace,  # Map several id with the same prefix
         })
         def index(request):
             return HttpResponse('not ajax')
      
     :param views_map: Map html elements IDs to handling functions.
+        To match several IDs use start (*)
 
     """
+    wildcards = {}
+    ids = {}
+
+    for key, handler in views_map.items():
+        prefix, sep, _ = key.partition('*')
+
+        if sep == '*':
+            wildcards[prefix] = handler
+
+        else:
+            ids[key] = handler
+
     def ajax_view_(func: Callable) -> Callable:
 
         def view_wrapper(*fargs, **fkwargs) -> HttpResponse:
@@ -49,7 +63,15 @@ def ajax_dispatch(views_map: Dict[str, Callable]) -> Callable:
                 request.ajax = ajax
 
             if ajax:
-                handling_view = views_map.get(ajax.source.id)
+                source_id = ajax.source.id
+                handling_view = ids.get(source_id)
+
+                if not handling_view:
+                    # Long way to process wildcards.
+                    for id_prefix, handling in wildcards.items():
+                        if source_id.startswith(id_prefix):
+                            handling_view = handling
+                            break
 
                 if handling_view:
                     response = handling_view(*fargs, **fkwargs)

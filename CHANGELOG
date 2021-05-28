@@ -4,6 +4,7 @@ django-siteajax changelog
 
 Unreleased
 ----------
++ Added wildcards IDs support for 'ajax_dispatch' decorator.
 * Fixed 'AjaxResponse' handling by 'ajax_dispatch'.
 
 

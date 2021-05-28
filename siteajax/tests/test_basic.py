@@ -70,3 +70,24 @@ def test_decor_ajax_autoinit(request_get):
     response = my_view(request)
     assert response.content == b'fine'
     assert response['HX-Push'] == 'addthis/'
+
+
+def test_decor_wildcards(request_get):
+
+    def handler(request: HttpRequest):
+        return HttpResponse(request.ajax.source.id)
+
+    @ajax_dispatch({
+        'my-not': lambda request: HttpResponse('miss'),
+        'my-id-*': handler,
+    })
+    def my_view(request: HttpRequest):
+        return HttpResponse('nope')
+
+    request = request_get(**{
+        'HTTP_HX-Request': 'true',
+        'HTTP_HX-Trigger': 'my-id-1234567',
+    })
+
+    response = my_view(request)
+    assert response.content == b'my-id-1234567'
