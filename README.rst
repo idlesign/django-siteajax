@@ -2,16 +2,13 @@ django-siteajax
 ===============
 https://github.com/idlesign/django-siteajax
 
-|release| |lic| |ci| |coverage|
+|release| |lic| |coverage|
 
 .. |release| image:: https://img.shields.io/pypi/v/django-siteajax.svg
     :target: https://pypi.python.org/pypi/django-siteajax
 
 .. |lic| image:: https://img.shields.io/pypi/l/django-siteajax.svg
     :target: https://pypi.python.org/pypi/django-siteajax
-
-.. |ci| image:: https://img.shields.io/travis/idlesign/django-siteajax/master.svg
-    :target: https://travis-ci.org/idlesign/django-siteajax
 
 .. |coverage| image:: https://img.shields.io/coveralls/idlesign/django-siteajax/master.svg
     :target: https://coveralls.io/r/idlesign/django-siteajax
