@@ -19,7 +19,7 @@ Description
 
 *Reusable application for Django bridging client and server sides*
 
-Streamline you server and client interaction using declarative techniques
+Streamline your server and client interaction using declarative techniques
 in your HTML and helpful abstractions from ``siteajax`` in your Python code.
 
 .. note:: The client side of ``siteajax`` is powered by ``htmx``
