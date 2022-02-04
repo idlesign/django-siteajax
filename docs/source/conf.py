@@ -49,7 +49,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'django-siteajax'
-copyright = '2021, Igor `idle sign` Starikov'
+copyright = '2021-2022, Igor `idle sign` Starikov'
 author = 'Igor `idle sign` Starikov'
 
 # The version info for the project you're documenting, acts as replacement for
