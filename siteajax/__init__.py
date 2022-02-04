@@ -7,4 +7,4 @@ VERSION_STR = '.'.join(map(str, VERSION))
 """Application version number string."""
 
 
-default_app_config = 'siteajax.config.SiteajaxConfig'
+default_app_config = 'siteajax.apps.SiteajaxConfig'
