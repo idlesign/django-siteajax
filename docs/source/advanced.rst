@@ -9,13 +9,13 @@ Additional info from the client
 to additional information received from the client:
 
 * ``ajax.is_used`` - a flag indicating whether the request is Ajax or not
-* ``ajax.restore_history`` - indicates the client side request to get the entire page
+* ``ajax.restore_history`` - indicates the client side is requesting the entire page
   (as opposed to a page fragment request), when the client was unable to restore a browser history state
   from the cache.
-* ``ajax.url`` - URL of the browser
+* ``ajax.url`` - URL from the browser
 * ``ajax.target`` - the id of the target element if it exists
-* ``ajax.user_input`` - the user input to a prompt (hx-prompt)
-* ``ajax.source`` - info about an element sourcing (triggering) the request (``id`` and ``name`` if any)
+* ``ajax.user_input`` - user input given to a prompt (hx-prompt)
+* ``ajax.source`` - info about an element sourcing (triggered) the request (``id`` and ``name`` if any)
 
 
 .. note:: The object is lazily initialized to allow faster
@@ -23,7 +23,7 @@ to additional information received from the client:
 
     Without initialization you won't be able to access it's attributes.
 
-    For initialization it's enough to check it in boolean context, e.g.::
+    For the initialization it's enough to check it in boolean context, e.g.::
 
         bool(Ajax(request))
 
@@ -83,7 +83,7 @@ Include htmx from CDN
 ~~~~~~~~~~~~~~~~~~~~~
 
 You can make use of including ``siteajax/cdn.html`` in your template (page's ``head``)
-to get ``htmx`` right from CDN.
+to get ``htmx`` right from a CDN.
 
 .. code-block:: html
 
