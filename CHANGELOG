@@ -2,6 +2,11 @@ django-siteajax changelog
 =========================
 
 
+Unreleased
+----------
+! Dropped QA for Py 3.6. Added QA for Django 4.1.
+
+
 v0.5.0 [2021-05-28]
 -------------------
 + Added wildcards IDs support for 'ajax_dispatch' decorator.

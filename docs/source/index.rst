@@ -19,7 +19,7 @@ in your HTML and helpful abstractions from `siteajax` in your Python code.
 Requirements
 ------------
 
-1. Python 3.6+
+1. Python 3.7+
 2. Django 2.2+
 
 
