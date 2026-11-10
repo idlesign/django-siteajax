@@ -1,4 +1,0 @@
-[run]
-include = siteajax/*
-omit = siteajax/migrations/*, siteajax/tests/*
-
