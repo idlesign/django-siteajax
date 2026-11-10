@@ -5,7 +5,6 @@ from pytest_djangoapp.fixtures.request import DjagoappClient
 
 from siteajax.utils import Source
 
-
 pytest_plugins = configure_djangoapp_plugin(
     extend_MIDDLEWARE=[
         'siteajax.middleware.ajax_handler',

@@ -1,5 +1,5 @@
 from json import dumps, loads
-from typing import NamedTuple, Dict, Any
+from typing import Any, Dict, NamedTuple
 from urllib.parse import unquote
 
 from django.core.serializers.json import DjangoJSONEncoder
@@ -34,7 +34,7 @@ class Ajax:
                 ...
 
     """
-    __slots__ = ['is_used', 'url', 'source', 'target', 'user_input', 'restore_history', '_request']
+    __slots__ = ['_request', 'is_used', 'restore_history', 'source', 'target', 'url', 'user_input']
 
     def __init__(self, request: HttpRequest):
         self._request = request
@@ -85,7 +85,6 @@ class Ajax:
         if not data:
             return {}
 
-        # encoded = headers.get('Triggering-Event-Uri-Autoencoded', '') == 'true'
         data = unquote(data)
 
         return loads(data)
@@ -95,9 +94,13 @@ class AjaxResponse(HttpResponse):
     """Represents a response object capable of driving a client side."""
 
     __slots__ = [
-        '_wrapped', '_headers', '_triggers',
+        '_headers',
+        '_triggers',
+        '_wrapped',
+        'history_item',
         'js_redirect',
-        'history_item', 'redirect', 'refresh',
+        'redirect',
+        'refresh',
     ]
 
     _trigger_stages = {

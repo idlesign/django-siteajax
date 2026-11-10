@@ -1,7 +1,7 @@
 from django.http import HttpRequest, HttpResponse
 
 from siteajax.decorators import ajax_dispatch
-from siteajax.utils import Source, AjaxResponse
+from siteajax.utils import AjaxResponse, Source
 
 
 def test_headers(htmx):

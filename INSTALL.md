@@ -1,31 +1,25 @@
-django-siteajax installation
-============================
+# django-siteajax installation
 
+Python `pip` package is required to install `django-siteajax`.
 
-Python ``pip`` package is required to install ``django-siteajax``.
+## From sources
 
+Use the following command line to install `django-siteajax` from sources directory (containing `pyproject.toml`):
 
-From sources
-------------
+```shell
+pip install .
+```
 
-Use the following command line to install ``django-siteajax`` from sources directory (containing setup.py):
+## From PyPI
 
-    pip install .
+Alternatively you can install `django-siteajax` from PyPI:
 
-or
-
-    python setup.py install
-
-
-From PyPI
----------
-
-Alternatively you can install ``django-siteajax`` from PyPI:
-
-    pip install django-siteajax
-
+```shell
+pip install django-siteajax
+```
 
 Use `-U` flag for upgrade:
 
-    pip install -U django-siteajax
-
+```shell
+pip install -U django-siteajax
+```

@@ -1,141 +1,132 @@
-Quickstart
-==========
+# Quickstart
 
 
-Installation
-~~~~~~~~~~~~
+### Installation
 
-.. code-block::
+```shell
+$ pip install django-siteajax
+```
 
-    $ pip install django-siteajax
+### Configuration
 
+In your project configuration file (usually `settings.py`):
 
-Configuration
-~~~~~~~~~~~~~
+1. Add `siteajax` to `INSTALLED_APPS`.
+2. Add `siteajax.middleware.ajax_handler` to `MIDDLEWARE`.
 
-In your project configuration file (usually ``settings.py``):
+!!! note
 
-1. Add ``siteajax`` to ``INSTALLED_APPS``.
-2. Add ``siteajax.middleware.ajax_handler`` to ``MIDDLEWARE``.
-
-  .. note:: The middleware is required if either your site is ajax-heavy
+    The middleware is required if either your site is ajax-heavy
     (the majority of requests are ajax) or you do not use
-    ``@ajax_dispatch`` decorator (it initializes ``request.ajax``
+    `@ajax_dispatch` decorator (it initializes `request.ajax`
     property just as middleware does) described below.
 
 
-Basic Usage
-~~~~~~~~~~~
+### Basic Usage
 
-Somewhere in your ``views.py``:
+Somewhere in your `views.py`:
 
-.. code-block:: python
-
-    from django.shortcuts import redirect, render
-    from siteajax.toolbox import Ajax, AjaxResponse
+```python
+from django.shortcuts import redirect, render
+from siteajax.toolbox import Ajax, AjaxResponse
 
 
-    def index_page(request):
-        """Suppose this view is served at /"""
+def index_page(request):
+    """Suppose this view is served at /"""
 
-        ajax: Ajax = request.ajax
+    ajax: Ajax = request.ajax
 
-        if ajax:
+    if ajax:
 
-            news = ...  # Here we fetch some news from DB.
+        news = ...  # Here we fetch some news from DB.
 
-            response = render(request, 'mytemplates/sub_news.html', {'news': news})
+        response = render(request, 'mytemplates/sub_news.html', {'news': news})
 
-            # Now we can already return the response as usual.
-            # But let's instruct the client side
-            # to do some tricks. For that we use AjaxResponse wrapper:
-            response = AjaxResponse(response)
-            # Let's trigger `newsReady` event defined on client side
-            # and pass some params into it:
-            response.trigger_event(name='newsReady', kwargs={'count': len(news)})
+        # Now we can already return the response as usual.
+        # But let's instruct the client side
+        # to do some tricks. For that we use AjaxResponse wrapper:
+        response = AjaxResponse(response)
+        # Let's trigger `newsReady` event defined on client side
+        # and pass some params into it:
+        response.trigger_event(name='newsReady', kwargs={'count': len(news)})
 
-            return response
+        return response
 
-        return render(request, 'mytemplates/index.html')
+    return render(request, 'mytemplates/index.html')
+```
+Now to your `mytemplates/index.html`:
 
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Get client library js from CDN. -->
+    {% include "siteajax/cdn.html" %}
+</head>
+<body>
+    <div id="news-list" hx-get hx-trigger="load"></div>
+    <!-- The contents of the above div will be replaced
+        with news from server automatically fetched on page load. -->
 
-Now to your ``mytemplates/index.html``:
+    <!-- Initialize CSRF token for Django (if you ever want to use POST/PUT etc.) -->
+    <script>{% include "siteajax/init_csrf.js" %}</script>
 
-.. code-block:: html
+    <script>
+        document.body.addEventListener('newsReady', function(event){
+           alert('News loaded: ' + event.detail.count);
+        })
+    </script>
 
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <!-- Get client library js from CDN. -->
-        {% include "siteajax/cdn.html" %}
-    </head>
-    <body>
-        <div id="news-list" hx-get hx-trigger="load"></div>
-        <!-- The contents of the above div will be replaced
-            with news from server automatically fetched on page load. -->
+</body>
+</html>
+```
+At last `mytemplates/sub_news.html` (nothing special):
 
-        <!-- Initialize CSRF token for Django (if you ever want to use POST/PUT etc.) -->
-        <script>{% include "siteajax/init_csrf.js" %}</script>
+```html
+{% for item in news %}<div>{{ item.title }}</div>{% endfor %}
+```
+!!! note
+    See https://htmx.org/docs/ for more examples of client side
 
-        <script>
-            document.body.addEventListener('newsReady', function(event){
-               alert('News loaded: ' + event.detail.count);
-            })
-        </script>
-
-    </body>
-    </html>
-
-
-At last ``mytemplates/sub_news.html`` (nothing special):
-
-.. code-block:: html
-
-    {% for item in news %}<div>{{ item.title }}</div>{% endfor %}
-
-
-.. note:: See https://htmx.org/docs/ for more examples of client side
-
-.. note:: See https://github.com/idlesign/django-siteajax/tree/master/demo for `siteajax` usage example.
+!!! note
+    See https://github.com/idlesign/django-siteajax/tree/master/demo for `siteajax` usage example.
 
 
-Dispatch
-~~~~~~~~
+### Dispatch
 
 In cases when various ajax calls have a single entry point view
-it's useful to apply ``siteajax.toolbox.Ajax.ajax_dispatch`` decorator
+it's useful to apply `siteajax.toolbox.Ajax.ajax_dispatch` decorator
 to decouple logic.
 
 It allows ajax request dispatch based on source html element identifiers.
-So the above mentioned ``index_page`` entry point view can be defined as follows
+So the above mentioned `index_page` entry point view can be defined as follows
 
-.. code-block:: python
+```python
+from django.shortcuts import redirect, render
+from siteajax.toolbox import AjaxResponse, ajax_dispatch
 
-    from django.shortcuts import redirect, render
-    from siteajax.toolbox import AjaxResponse, ajax_dispatch
 
+def get_news(request):
+    news = ...  # Here we fetch some news from DB.
+    response = AjaxResponse(render(request, 'mytemplates/sub_news.html', {'news': news}))
+    response.trigger_event(name='newsReady', kwargs={'count': len(news)})
+    return response
 
-    def get_news(request):
-        news = ...  # Here we fetch some news from DB.
-        response = AjaxResponse(render(request, 'mytemplates/sub_news.html', {'news': news}))
-        response.trigger_event(name='newsReady', kwargs={'count': len(news)})
-        return response
-
-    @ajax_dispatch({
-        'news-list': get_news,  # Map element id to a handler
-    })
-    def index_page(request):
-        """Suppose this view is served at /"""
-        return render(request, 'mytemplates/index.html')
-
+@ajax_dispatch({
+    'news-list': get_news,  # Map element id to a handler
+})
+def index_page(request):
+    """Suppose this view is served at /"""
+    return render(request, 'mytemplates/index.html')
+```
 For cases when you want to route multiple autogenerated page elements with IDs having
-a common prefix (e.g.: in ``myel-1``, ``myel-44``, ``myel-something`` common prefix is ``myel-``)
-to a single handler use star (``*``):
+a common prefix (e.g.: in `myel-1`, `myel-44`, `myel-something` common prefix is `myel-`)
+to a single handler use star (`*`):
 
-.. code-block:: python
-
-    @ajax_dispatch({
-        'myel-*': common_handler,
-    })
-    def my_iew(request):
-        ...
+```python
+@ajax_dispatch({
+    'myel-*': common_handler,
+})
+def my_iew(request):
+    ...
+```

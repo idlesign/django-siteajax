@@ -1,18 +1,11 @@
-django-siteajax authors
-=======================
+# django-siteajax authors
 
 Created by Igor `idle sign` Starikov.
 
-
-Contributors
-------------
+## Contributors
 
 Here could be your name.
 
-
-
-Translators
------------
+## Translators
 
 Here could be your name.
-
